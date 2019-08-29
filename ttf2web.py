@@ -80,7 +80,9 @@ class TTF2Web:
         print('\tfont-style: ' + self.fontstyle + ';', file=handle)
         print('\tfont-weight: ' + self.fontweight + ';', file=handle)
         print('\tsrc: local("' + self.fontfamily + '"), ' +
-                     'url(' + url + ') format("woff2");', file=handle)
+                     'url(' + url + '.woff2) format("woff2"), ' +
+                     'url(' + url + '.woff) format("woff"), ' +
+                     'url(' + url + '.ttf) format("truetype");', file=handle)
         print('\tunicode-range: ' + unicoderange + ';', file=handle)
         print('}', file=handle)
 
@@ -103,11 +105,38 @@ class TTF2Web:
             cmap = font.getBestCmap()
             glyphcount = len(font.getGlyphOrder()) - 1
             if cmap:
-                outfile = os.path.join(self.assetdir,
-                                       self.basename + "." + subname + ".woff2")
+
+                basefile = self.basename + "." + subname
+                outfile = os.path.join(self.assetdir,basefile + ".woff2")
                 font.flavor = 'woff2'
                 font.save(outfile)
-                woff2_list.append((outfile, subrange))
+                if verbosity == 1:
+                    print("Generated", outfile)
+                elif verbosity == 2:
+                    print("  Generated", outfile)
+                    print("  Found", glyphcount, "glyphs for",
+                          len(cmap), "out of", len(unicodes), "unicodes")
+            
+
+                outfile = os.path.join(self.assetdir,basefile + ".woff")
+                font.flavor = 'woff'
+                font.save(outfile)
+                
+                if verbosity == 1:
+                    print("Generated", outfile)
+                elif verbosity == 2:
+                    print("  Generated", outfile)
+                    print("  Found", glyphcount, "glyphs for",
+                          len(cmap), "out of", len(unicodes), "unicodes")
+            
+
+                outfile = os.path.join(self.assetdir,basefile + ".ttf")
+                font.flavor = ''
+                font.save(outfile)
+
+                
+                woff2_list.append((os.path.join(self.assetdir,basefile), subrange))
+                
                 if verbosity == 1:
                     print("Generated", outfile)
                 elif verbosity == 2:
