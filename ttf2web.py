@@ -162,12 +162,21 @@ def main():
                              "separated by one or more spaces. The first field " +
                              "should be a name given to the unicode range " +
                              "specified in the second field.")
+    parser.add_argument("--assetdir", dest="assetdir", default="assets",
+                        help="directory were the resulting files will be stored.")
+    
     args = parser.parse_args()
     if args.urfile:
         uranges = readURFile(args.urfile)
     else:
         uranges = getDefaultRanges()
-    t2w = TTF2Web(args.fontfile, uranges)
+
+    if args.assetdir:
+        assetdir = args.assetdir 
+    else:
+        assetdir = "assets"
+
+    t2w = TTF2Web(args.fontfile,uranges,assetdir)
     verbosity = 2 if args.verbose else 1
     woff2_list = t2w.generateWoff2(verbosity=verbosity)
     t2w.generateCss(woff2_list, verbosity=verbosity)
